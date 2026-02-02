@@ -20,4 +20,6 @@ public interface StreamReader extends AutoCloseable {
     boolean hasRemainingBytes(int size);
 
     boolean isFinished();
+
+    boolean isAlive();
 }

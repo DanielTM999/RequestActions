@@ -56,28 +56,32 @@ public final class ServerEventEmiterService implements ServerEventEmiterDispache
 
             try (streamReader) {
                 while (isRunning.get()) {
-                    if (streamReader.hasRemainingBytes(1)) {
-                        byte[] bytes = streamReader.readBytes(1);
-                        char c = (char) bytes[0];
+                    try{
+                        if (streamReader.hasRemainingBytes(1)) {
+                            byte[] bytes = streamReader.readBytes(1);
+                            char c = (char) bytes[0];
 
-                        if (c == '\n') {
-                            String line = lineBuffer.toString().trim();
-                            lineBuffer.setLength(0);
-                            processLine(line, context);
+                            if (c == '\n') {
+                                String line = lineBuffer.toString().trim();
+                                lineBuffer.setLength(0);
+                                processLine(line, context);
+                            } else {
+                                lineBuffer.append(c);
+                            }
+
                         } else {
-                            lineBuffer.append(c);
+                            if (streamReader.isFinished()) {
+                                break;
+                            }
+                            try {
+                                TimeUnit.MILLISECONDS.sleep(50);
+                            } catch (InterruptedException e) {
+                                Thread.currentThread().interrupt();
+                                break;
+                            }
                         }
-
-                    } else {
-                        if (streamReader.isFinished()) {
-                            break;
-                        }
-                        try {
-                            TimeUnit.MILLISECONDS.sleep(50);
-                        } catch (InterruptedException e) {
-                            Thread.currentThread().interrupt();
-                            break;
-                        }
+                    } catch (Exception e) {
+                        serverEventEmiter.onError(e);
                     }
                 }
             } catch (Exception e) {

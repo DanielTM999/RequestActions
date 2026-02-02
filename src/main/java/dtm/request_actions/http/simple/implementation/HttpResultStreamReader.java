@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
+import java.util.List;
 
 public class HttpResultStreamReader implements StreamReader {
 
@@ -14,6 +16,8 @@ public class HttpResultStreamReader implements StreamReader {
     private final ByteArrayOutputStream buffer;
     private int pos = 0;
     private boolean finished = false;
+    private boolean broken = false;
+    private List<Throwable> errors = new ArrayList<>();
 
     public HttpResultStreamReader(InputStream inputStream) {
         this.input = inputStream;
@@ -51,6 +55,8 @@ public class HttpResultStreamReader implements StreamReader {
             byte[] remaining = input.readAllBytes();
             buffer.write(remaining);
         } catch (IOException e) {
+            broken = true;
+            errors.add(e);
             throw new RuntimeException(e);
         }
         byte[] all = buffer.toByteArray();
@@ -122,6 +128,11 @@ public class HttpResultStreamReader implements StreamReader {
     }
 
     @Override
+    public boolean isAlive() {
+        return false;
+    }
+
+    @Override
     public void close() throws Exception {
         this.finished = true;
         input.close();
@@ -138,6 +149,8 @@ public class HttpResultStreamReader implements StreamReader {
                 buffer.write(b);
             }
         } catch (IOException e) {
+            broken = true;
+            errors.add(e);
             throw new RuntimeException(e);
         }
     }
