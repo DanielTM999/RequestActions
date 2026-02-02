@@ -22,4 +22,6 @@ public interface StreamReader extends AutoCloseable {
     boolean isFinished();
 
     boolean isAlive();
+
+    void setBufferSize(int size);
 }

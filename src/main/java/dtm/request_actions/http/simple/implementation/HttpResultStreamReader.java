@@ -15,8 +15,9 @@ public class HttpResultStreamReader implements StreamReader {
     private final InputStream input;
     private final ByteArrayOutputStream buffer;
     private int pos = 0;
-    private boolean finished = false;
-    private boolean broken = false;
+    private volatile boolean finished = false;
+    private volatile boolean broken = false;
+    private volatile int readBufferSize = 8192;
     private List<Throwable> errors = new ArrayList<>();
 
     public HttpResultStreamReader(InputStream inputStream) {
@@ -129,24 +130,41 @@ public class HttpResultStreamReader implements StreamReader {
 
     @Override
     public boolean isAlive() {
-        return broken;
+        return !finished && !broken;
     }
 
     @Override
     public void close() throws Exception {
         this.finished = true;
-        input.close();
+        if (input != null) {
+            input.close();
+        }
     }
 
-    private void ensureAvailable(int size) {
+    @Override
+    public void setBufferSize(int size) {
+        if (size <= 0) {
+            throw new IllegalArgumentException("Buffer size deve ser maior que zero");
+        }
+        this.readBufferSize = size;
+    }
+
+    private void ensureAvailable(int requiredSize) {
         try {
-            while (buffer.size() - pos < size) {
-                int b = input.read();
-                if (b == -1) {
+            if (buffer.size() - pos >= requiredSize) {
+                return;
+            }
+            if (finished || broken) {
+                return;
+            }
+            byte[] transferBuffer = new byte[readBufferSize];
+            while (buffer.size() - pos < requiredSize) {
+                int bytesRead = input.read(transferBuffer);
+                if (bytesRead == -1) {
                     finished = true;
                     break;
                 }
-                buffer.write(b);
+                buffer.write(transferBuffer, 0, bytesRead);
             }
         } catch (IOException e) {
             broken = true;
