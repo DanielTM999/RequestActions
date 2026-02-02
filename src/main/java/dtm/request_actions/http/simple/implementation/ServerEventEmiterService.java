@@ -55,8 +55,10 @@ public final class ServerEventEmiterService implements ServerEventEmiterDispache
             StringBuilder lineBuffer = new StringBuilder();
 
             try (streamReader) {
-                while (isRunning.get() && streamReader.isAlive()) {
+                while (isRunning.get()) {
                     try{
+                        if(!streamReader.isAlive()) break;
+
                         if (streamReader.hasRemainingBytes(1)) {
                             byte[] bytes = streamReader.readBytes(1);
                             char c = (char) bytes[0];
