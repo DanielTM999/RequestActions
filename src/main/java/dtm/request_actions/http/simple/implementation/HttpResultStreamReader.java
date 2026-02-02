@@ -130,7 +130,7 @@ public class HttpResultStreamReader implements StreamReader {
 
     @Override
     public boolean isAlive() {
-        return !finished && !broken;
+        return !broken;
     }
 
     @Override
@@ -151,6 +151,11 @@ public class HttpResultStreamReader implements StreamReader {
 
     private void ensureAvailable(int requiredSize) {
         try {
+            if (pos > 0 && pos >= buffer.size()) {
+                buffer.reset();
+                pos = 0;
+            }
+
             if (buffer.size() - pos >= requiredSize) {
                 return;
             }
