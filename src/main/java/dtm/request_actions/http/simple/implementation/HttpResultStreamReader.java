@@ -129,7 +129,7 @@ public class HttpResultStreamReader implements StreamReader {
 
     @Override
     public boolean isAlive() {
-        return false;
+        return broken;
     }
 
     @Override

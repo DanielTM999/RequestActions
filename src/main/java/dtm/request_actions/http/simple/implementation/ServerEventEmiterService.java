@@ -55,7 +55,7 @@ public final class ServerEventEmiterService implements ServerEventEmiterDispache
             StringBuilder lineBuffer = new StringBuilder();
 
             try (streamReader) {
-                while (isRunning.get()) {
+                while (isRunning.get() && streamReader.isAlive()) {
                     try{
                         if (streamReader.hasRemainingBytes(1)) {
                             byte[] bytes = streamReader.readBytes(1);
@@ -89,6 +89,7 @@ public final class ServerEventEmiterService implements ServerEventEmiterDispache
                     serverEventEmiter.onError(e);
                 }
             } finally {
+                serverEventEmiter.onDisconected();
                 if (!executorService.isShutdown()) {
                     executorService.shutdown();
                 }
