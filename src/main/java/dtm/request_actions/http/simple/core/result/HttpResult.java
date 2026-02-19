@@ -10,4 +10,10 @@ public interface HttpResult {
     Optional<String> getBody();
     Optional<String> ifErrorGet();
     StreamReader getStreamReader();
+
+    default boolean isRequestSucess() {
+        int statusCode = getStatusCode();
+        return (statusCode >= 200 && statusCode < 300);
+    }
+
 }
