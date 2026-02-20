@@ -30,6 +30,7 @@ import dtm.request_actions.http.simple.annotations.MultipartForm;
 import dtm.request_actions.http.simple.core.HttpAction;
 import dtm.request_actions.http.simple.core.HttpHandler;
 import dtm.request_actions.http.simple.core.HttpType;
+import dtm.request_actions.http.simple.core.StreamReader;
 import dtm.request_actions.http.simple.core.config.RequestConfiguration;
 import dtm.request_actions.http.simple.core.config.RequestConfigurationBody;
 import dtm.request_actions.http.simple.core.mapper.HttpMapper;
@@ -1047,11 +1048,13 @@ public class HttpActionImpl implements HttpAction{
             }
 
             HttpResponse<InputStream> response = client.send(requestBuilder.build(), HttpResponse.BodyHandlers.ofInputStream());
-            
+
+            HttpRequestResult<T> result =  new HttpRequestResultImpl<>(response, httpMapper, configurationBody.getHttpTypeResponse());
             for (HttpHandler httpHandler : httpHandlers) {
-                httpHandler.onResult(response);
+                httpHandler.onResult(result);
             }
-            return new HttpRequestResultImpl<>(response, httpMapper, configurationBody.getHttpTypeResponse());
+
+            return result;
         } catch (Exception e) {
             throw new HttpException(600, e.getMessage());
         }
@@ -1084,10 +1087,12 @@ public class HttpActionImpl implements HttpAction{
             }
 
             HttpResponse<InputStream> response = client.send(requestBuilder.build(), HttpResponse.BodyHandlers.ofInputStream());
+            HttpRequestResult<T> result =  new HttpRequestResultImpl<>(response, httpMapper, configurationBody.getHttpTypeResponse());
             for (HttpHandler httpHandler : httpHandlers) {
-                httpHandler.onResult(response);
+                httpHandler.onResult(result);
             }
-            return new HttpRequestResultImpl<>(response, httpMapper, configurationBody.getHttpTypeResponse());
+
+            return result;
         } catch (Exception e) {
             throw new HttpException(600, e.getMessage());
         }
@@ -1113,10 +1118,12 @@ public class HttpActionImpl implements HttpAction{
             }
 
             HttpResponse<InputStream> response = client.send(requestBuilder.build(), HttpResponse.BodyHandlers.ofInputStream());
+            HttpRequestResult<T> result =  new HttpRequestResultImpl<>(response, httpMapper, configurationBody.getHttpTypeResponse());
             for (HttpHandler httpHandler : httpHandlers) {
-                httpHandler.onResult(response);
+                httpHandler.onResult(result);
             }
-            return new HttpRequestResultImpl<>(response, httpMapper, configurationBody.getHttpTypeResponse());
+
+            return result;
         } catch (Exception e) {
             throw new HttpException(600, e.getMessage());
         }
@@ -1142,10 +1149,12 @@ public class HttpActionImpl implements HttpAction{
                 headers.forEach(requestBuilder::header);
             }
             HttpResponse<InputStream> response = client.send(requestBuilder.build(), HttpResponse.BodyHandlers.ofInputStream());
+            HttpRequestResult<T> result =  new HttpRequestResultImpl<>(response, httpMapper, configurationBody.getHttpTypeResponse());
             for (HttpHandler httpHandler : httpHandlers) {
-                httpHandler.onResult(response);
+                httpHandler.onResult(result);
             }
-            return new HttpRequestResultImpl<>(response, httpMapper, configurationBody.getHttpTypeResponse());
+
+            return result;
         } catch (Exception e) {
             throw new HttpException(600, e.getMessage());
         }

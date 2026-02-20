@@ -38,6 +38,13 @@ public class HttpRequestResultImpl<T> extends HttpRequestResult<T> {
         configure();
     }
 
+    HttpRequestResultImpl(HttpResponse<InputStream> baseResponse, StreamReader streamReader, HttpMapper httpMapper, HttpType httpType){
+        this.baseResponse = baseResponse;
+        this.httpMapper = httpMapper;
+        this.streamReader = streamReader;
+        configure();
+    }
+
     @Override
     public void setMapper(HttpMapper mapper) {
         this.httpMapper = mapper;
