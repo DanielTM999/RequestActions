@@ -25,7 +25,11 @@ public class DownloadObserverService implements DownloadObserver {
     private final ExecutorService executorService;
 
     public DownloadObserverService(){
-        this.executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        this.executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(), r -> {
+            Thread t = new Thread(r, "DownloadObserverService-Worker");
+            t.setDaemon(true);
+            return t;
+        });
     }
 
     public DownloadObserverService(ExecutorService executorService){
